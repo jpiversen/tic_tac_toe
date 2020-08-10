@@ -5,6 +5,23 @@ from os import system, name
 placeholder_text = " "
 board = [placeholder_text for i in range(9)]
 
+
+# Define help text
+help_txt = """
+You are now playing a game of Tic Tac Toe.
+The 3x3 grid is numerated like the numpad at a phone: 1 is at the top left and 9 is at the bottom right, like this: \n 
+
+| 1 | 2 | 3 |
+ --- --- --- 
+| 4 | 5 | 6 |
+ --- --- --- 
+| 7 | 8 | 9 | \n
+
+Choose a number to place your symbol. 
+The first player to get three in a row - either horizontally, vertically or diagonally - wins.
+If the board is full and nobody won yet, then it's a tie. 
+"""
+
 # Make function to print the board
 def print_board():
 	row1 = "| {} | {} | {} |".format(board[0], board[1], board[2])
@@ -46,11 +63,10 @@ def clear():
         _ = system('clear') 
 
 
-
 player = "x"
 
 # Welcome message
-print("Welcome to a game of Tic Tac Toe! Press 'q' at any time to quit.")
+print("Welcome to a game of Tic Tac Toe! Press 'q' to quit or 'h' for help.")
 print_board()
 
 # The "game loop"
@@ -65,6 +81,15 @@ while True:
 	if choice == "q":
 		print("Goodbye!")
 		break
+
+	# Provide help if input is "h"
+	elif choice == "h":
+		clear()
+		print(help_txt)
+		input("Press 'enter' to go back to the game.")
+		clear()
+		print_board()
+		continue
 
 	# Check that input is valid
 	elif choice not in [str(i) for i in range(1,10)]:
