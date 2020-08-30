@@ -301,7 +301,7 @@ class ai_player:
 
 # Start game! 	
 
-iterations = 1000 # Should be more when the algo is working
+iterations = 10000
 
 p1 = ai_player(symbol = "x", er = 1)
 p2 = ai_player(er = 1) 
