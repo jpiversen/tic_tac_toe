@@ -1,5 +1,4 @@
 
-
 from os import system, name 
 import random
 
@@ -64,18 +63,6 @@ class game:
 			self.board.print_board()
 
 
-	def restart_game(self):
-		self.game_over = False
-		self.is_winner = False
-		self.winner = None
-		self.board.reset_board()
-		self.current_player = self.p1
-		self.games_played += 1
-
-		print("Restarting game")
-		self.play()
-
-
 	def clear(self):
 		# for windows
 		if name == 'nt':
@@ -107,7 +94,6 @@ If the board is full and nobody won yet, then it's a tie.
 		input("Press 'enter' to go back to the game.")
 		self.clear()
 		self.board.print_board()
-		#self.play()
 
 	def check_winner(self):
 
@@ -152,23 +138,22 @@ If the board is full and nobody won yet, then it's a tie.
 
 		if self.game_over:
 			self.give_reward()
-			#self.restart_game()
 
 
 
 	def give_reward(self):
 
 		if self.winner == self.p1:
-			self.p1.feed_reward(10)
-			self.p2.feed_reward(-10) 
+			self.p1.get_reward(10)
+			self.p2.get_reward(-10) 
 
 		elif self.winner == self.p2:
-			self.p1.feed_reward(-10)
-			self.p2.feed_reward(10)
+			self.p1.get_reward(-10)
+			self.p2.get_reward(10)
 		else:
 			# Draw is better for p2, as p1 has a higher prob of winning
-			self.p1.feed_reward(0)
-			self.p2.feed_reward(5)
+			self.p1.get_reward(0)
+			self.p2.get_reward(2)
 
 			
 	def quit_game(self):
@@ -230,7 +215,7 @@ class human_player:
 		choice = input("Enter your move (1-9): ").strip().lower()
 		return choice
 
-	def feed_reward(self, reward):
+	def get_reward(self, reward):
 		pass
 
 
@@ -255,7 +240,7 @@ class ai_player:
 
 		current_board = board.copy()
 		possible_moves = self.get_possible_moves(current_board, free_pos_txt)
-
+		
 		if random.uniform(0, 1) < self.explore_rate:
 			
 			choice = random.choice(possible_moves) # random choice from possible_moves
@@ -269,10 +254,10 @@ class ai_player:
 				next_board = current_board.copy()
 				next_board[move-1] = self.symbol
 				hash_next_board = "".join(next_board)
-				value = 0 if self.states_value.get(hash_next_board) is None else self.states_value.get(hash_next_board)
-			if value > value_max:
-				value_max = value
-				choice = move			
+				value = random.uniform(-5, 5) if self.states_value.get(hash_next_board) is None else self.states_value.get(hash_next_board)
+				if value > value_max:
+					value_max = value
+					choice = move			
 		
 		# Hash next board
 		next_board = current_board.copy()
@@ -283,16 +268,18 @@ class ai_player:
 		choice = str(choice)
 		return choice
 
-	def feed_reward(self, reward):
+	def get_reward(self, reward):
+	
 		for state in reversed(self.states):
 			if self.states_value.get(state) is None:
-				self.states_value[state] = 0
+				self.states_value[state] = 0 #random.uniform(-5, 5)
 
 			self.states_value[state] += self.lr * (self.discount_factor * reward - self.states_value[state])
 
 			reward = self.states_value[state]
 
-
+		# Reset states
+		self.states = []
 
 
 
@@ -301,7 +288,7 @@ class ai_player:
 
 # Start game! 	
 
-iterations = 10000
+iterations = 200000
 
 p1 = ai_player(symbol = "x", er = 1)
 p2 = ai_player(er = 1) 
@@ -331,18 +318,7 @@ for i in range(iterations):
 
 tic_tac_toe.clear()
 
-print("Player 1's states:")
-
-for key in p1.states_value:
-	print(key, '->', p1.states_value[key])
-
-
-print("Player 2's states:")
-for key in p2.states_value:
-	print(key, '->', p2.states_value[key])
-
-
-
+# Play the game! 
 play_again = True
 
 while play_again:
